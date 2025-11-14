@@ -61,9 +61,9 @@ mdbook v0.4.52
 完成上面的依赖安装后(`rust`和`mdbook`)，读者可以`fork`本仓库后，进行克隆到本地(此处直接使用了上游仓库，请读者自行更换为对应的仓库链接)：
 
 ``` bash
-git clone git@github.com:hust-open-atom-club/rust-for-qemu-insides.git
+git clone git@github.com:hust-open-atom-club/rust-for-linux-insides.git
 
-cd rust-for-qemu-insides
+cd rust-for-linux-insides
 ```
 
 然后可以直接开始构建，或查看构建命令：
