@@ -1,8 +1,26 @@
 [book]
 authors = ["Chen Miao <chenmiao@openatom.club>"]
-language = "en"
+language = "zh"
 src = "src"
 title = "Rust for Linux Insides"
 
 [output.html]
+git-repository-url = "https://github.com/hust-open-atom-club/rust-for-linux-insides"
+git-repository-icon = "fa-github"
 mathjax-support = true
+
+[rust]
+edition = "2021"
+
+[output.html.playground]
+editable = true
+copyable = true
+copy-js = true
+line-numbers = true
+runnable = true
+
+[output.html.print]
+enable = true
+page-break = true
+
+
