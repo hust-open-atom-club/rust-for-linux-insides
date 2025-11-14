@@ -8,4 +8,4 @@
 
 [新闻](news/news_index.md)
 
-[Contributors](contributor.md)
+[贡献指南](contributions.md)

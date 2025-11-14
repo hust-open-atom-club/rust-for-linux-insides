@@ -203,6 +203,7 @@ getrandom
 getter
 getters
 GGraph
+github
 GitHub
 gitignore
 grapheme
@@ -308,6 +309,7 @@ macOS
 Matsakis
 mathematic
 mdbook
+mdBook
 memoization
 metadata
 Metadata
@@ -422,6 +424,7 @@ proto
 pseudocode
 pthreads
 pushups
+qemu
 QuitMessage
 quux
 RAII
@@ -541,9 +544,11 @@ subtasks
 subteams
 subtree
 subtyping
+sudo
 summarizable
 supertrait
 supertraits
+systemctl
 TcpListener
 TcpStream
 templating
@@ -628,6 +633,7 @@ weakt
 WeatherForecast
 webpage
 WebSocket
+wget
 whitespace
 wildcard
 wildcards
@@ -644,3 +650,4 @@ xpression
 yyyy
 zerocopy
 ZipImpl
+zxvf
