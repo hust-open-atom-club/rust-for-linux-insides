@@ -322,6 +322,17 @@ Filesystem      Size  Used Avail Use% Mounted on
 
 至此，启动一个 Rust for Linux 编译的内核镜像就成功完成了。
 
+### TIPs：启用 rust anaylzer
+
+Rust for Linux 为用户提供了 `make rust-analyzer` 的命令以启用 `rust-analyzer` 更为方便的编写和查看 rust 代码。
+
+通常，我会使用如下步骤启用 `clangd` 和 `analyzer` 以支持内核 C 语言源码和 Rust 代码：
+
+``` bash
+bear -- make LLVM=1 -j`nproc`
+make LLVM=1 rust-analyzer
+```
+
 ---
 
 参考链接
