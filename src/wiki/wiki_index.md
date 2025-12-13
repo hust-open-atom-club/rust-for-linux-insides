@@ -1,8 +1,8 @@
 # Rust for Linux Wiki
 
-在本项目的 Wiki 的整个栏目中，主要聚焦于 Rust for Linux 的所有代码实现。同时，Wiki 栏目会着重介绍 Rust for Linux 当前每一个模块的功能并随着版本实时更新。
+本项目的 Wiki 主要聚焦 Rust for Linux 的代码实现，并介绍各模块功能，该 Wiki 会随着版本实时更新。
 
-在这之前，我们需要准备一个能够运行 Rust for Linux 代码的环境。在正式开始之前，这里统一介绍笔者当前的系统环境：
+在开始之前，需要准备一个可运行 Rust for Linux 的环境。下文先说明笔者当前的系统环境：
 
 ``` bash
 OS: Fedora 42 (Server Edition)
@@ -15,36 +15,36 @@ LLD: LLD 20.1.8 (compatible with GNU linkers)
 
 ## Rust for Linux 环境搭建
 
-我们需要搭建一个 Rust for Linux 环境，我们就需要编译内核，然后通过 QEMU 运行所编译的内核镜像。为了方便起见，除了 QEMU 和 Linux 镜像文件，其余文件均采用已经处理好的网络资源文件 (rootfs 和 disk image)。
+我们将通过编译内核并使用 QEMU 启动编译产物来搭建运行环境。为了简化流程，除 QEMU 与编译的内核外，rootfs 与 disk image 等均采用预先准备好的在线镜像。
 
 ### 安装 Rust
 
-在 Rust for Linux 的[官方文档](https://docs.kernel.org/rust/quick-start.html)中，Rust 的安装是通过各自发行版本的包管理器进行统一安装，但笔者是通过 Rust 官方安装脚本进行安装，**只需要保证 \\( rust \ version \ge 1.80 \\) 即可**。
+在 Rust for Linux 的[官方文档](https://docs.kernel.org/rust/quick-start.html)中，推荐使用发行版的包管理器安装；本文改用 Rust 官方安装脚本。**只需确保 `rustc` 版本 ≥ 1.80 即可**。
 
-因此，此处仅提供通过 Rust 官方安装脚本的方式：
+因此这里仅给出使用 Rust 官方脚本的安装方式：
 
-> 对于国内用户，可以采用[rsproxy](https://rsproxy.cn/)更换镜像源后进行安装
+> 对于国内用户，可以采用 [rsproxy](https://rsproxy.cn/) 更换镜像源后进行安装
 
 ``` bash
 curl --proto '=https' --tlsv1.2 -sSf https://rsproxy.cn/rustup-init.sh | sh
 ```
 
-安装完成后，查看安装信息以确保 Rust 版本大于`1.80`版本。
+安装完成后，检查版本确保 `rustc` 版本 ≥ 1.80。
 
 ``` bash
 rustc --version
 rustc 1.91.0 (f8297e351 2025-10-28)
 ```
 
-当然，你可以可以通过如下代码进行简单验证：
+当然，你可以通过如下代码进行简单验证：
 
 ``` rust
 # fn main() {
-    println!("Hello Rust Version Done! Verison: {:?}", std::env::var("CARGO_PKG_VERSION"))
+    println!("Hello Rust Version Done! Version: {:?}", std::env::var("CARGO_PKG_VERSION"))
 # }
 ```
 
-通过官方安装脚本安装时，通常也会安装`rustfmt`和`rust-clippy`。为了确认是否安装成功，请使用如下命令进行检测：
+通过官方安装脚本安装时，通常也会安装 `rustfmt` 和 `rust-clippy`。可通过以下命令验证是否安装成功：
 
 ``` bash
 rustfmt --version
@@ -60,7 +60,7 @@ clippy 0.1.91 (f8297e351a 2025-10-28)
 rustup component add rust-src rustfmt clippy
 ```
 
-针对于 Rust for Linux 开发，还需要额外安装`bindgen`，这用于 Rust 与 C 语言之间的通信。
+进行 Rust for Linux 开发还需安装 `bindgen`，用于从 C 头文件生成 Rust FFI 绑定。
 
 ``` bash
 cargo install --locked bindgen-cli
@@ -68,33 +68,33 @@ cargo install --locked bindgen-cli
 
 ### 安装 QEMU
 
-在后续的启动中，我们通过 Qemu 进行启动对应的镜像文件，因此需要提前准备 Qemu 可执行程序。
+后续将通过 QEMU 启动镜像，因此需要先安装 QEMU。
 
-对于 Qemu 的安装而言，通常分为两种方式：包管理安装和手动编译。笔者通常喜欢手动编译，但下方会给出两种安装方式，读者可以自行选择其中一种进行安装。
+对于 QEMU 的安装而言，通常分为两种方式：包管理安装和手动编译。笔者通常喜欢手动编译，但下方会给出两种安装方式，读者可以自行选择其中一种进行安装。
 
 #### 包管理安装
 
 包管理安装可以直接通过各自的系统命令进行安装，下方给出两种常见发行版本安装命令：
 
-- Ubuntu/Debian(全量安装)
+- Ubuntu/Debian（全量安装）
 
 ``` bash
 sudo apt install qemu -y
 ```
 
-- Ubuntu/Debian(精简安装)
+- Ubuntu/Debian（精简安装）
 
 ``` bash
 sudo apt install qemu-system-x86 -y
 ```
 
-- Fedora/Rocky(全量安装)
+- Fedora/Rocky（全量安装）
 
 ``` bash
 sudo dnf install qemu -y
 ```
 
-- Fedora/Rocky(精简安装)
+- Fedora/Rocky（精简安装）
 
 ``` bash
 sudo dnf install qemu-system-x86 -y
@@ -124,7 +124,7 @@ tar Jxvf qemu-10.1.2.tar.xz
 make -j$(nproc)
 ```
 
-> 精简安装：本教程主要在`x86`环境上进行操作，因此如果读者的资源有限或认为全量编译过慢，可以通过下方指令进行精简编译  
+> 精简安装：本教程主要在 `x86` 环境上进行操作，因此如果读者的资源有限或认为全量编译过慢，可以通过下方指令进行精简编译
 > ``` bash
 > ./configure --prefix=/opt/qemu --target-list=x86_64-softmmu --enable-kvm
 > ```
@@ -141,7 +141,7 @@ QEMU emulator version 10.1.2
 Copyright (c) 2003-2025 Fabrice Bellard and the QEMU Project developers
 ```
 
-### 构建 Linux 镜像
+### 构建 Linux 内核（vmlinux）
 
 提前准备好 Linux 编译所需要的依赖包：
 
@@ -149,29 +149,31 @@ Copyright (c) 2003-2025 Fabrice Bellard and the QEMU Project developers
 sudo dnf in gcc clang clang-tools-extra llvm lld gpg2 git gzip make openssl perl rsync binutils ncurses-devel flex bison openssl-devel elfutils-libelf-devel rpm-build
 ```
 
-准备好 Rust 环境后，我们就需要通过编译内核源码获取 Linux 镜像文件。首先，我们直接克隆 Rust for Linux 主线分支 (**Linux 内核主线源码也是可行的，只是相较于 Rust for Linux 主线分支支持的特性稍微少一些**)。
+准备好 Rust 环境后，我们将通过编译内核源码生成内核产物（`vmlinux`）。
+
+首先，我们直接克隆 Rust for Linux 主线分支 (**Linux 内核主线源码也是可行的，只是相较于 Rust for Linux 主线分支支持的特性稍微少一些**)。
 
 ``` bash
 git clone https://github.com/Rust-for-Linux/linux.git rust-for-linux --depth=1
 ```
 
-进入到`rust-for-linux`目录中 (这里将 Rust for Linux 主线代码重命名为 `rust-for-linux` 这是为了避免与 `linux` 内核主线重名)。然后通过如下命令检查 Rust 依赖和版本是否正确。
+进入到 `rust-for-linux` 目录中 (这里将 Rust for Linux 主线代码重命名为 `rust-for-linux` 这是为了避免与 `linux` 内核主线重名)。然后通过如下命令检查 Rust 依赖和版本是否正确。
 
-> **极其要注意的是，对于 Rust for Linux 的编译，LLVM 工具链的版本必须要 \\( \ge 15.0.0 \\)**
+> **需要特别注意：编译 Rust for Linux 要求 LLVM 工具链版本 ≥ 15.0.0**
 
 ``` bash
 make LLVM=1 rustavailable
 Rust is available!
 ```
 
-只有输出结果为`Rust is available!`时，才证明当前主机环境能够正常通过 Rust 编译内核。现在，我们就可以开始编译 Rust for Linux 的内核源码。
+只有输出结果为 `Rust is available!` 时，才证明当前主机环境能够正常通过 Rust 编译内核。现在，我们就可以开始编译 Rust for Linux 的内核源码。
 
 ``` bash
 make LLVM=1 defconfig
 make LLVM=1 menuconfig
 ```
 
-首先通过`defconfig`命令生成默认配置文件，然后通过`menuconfig`启用`RUST`和`SAMPLES_RUST`，其参数选择位置参考下方：
+首先通过 `defconfig` 生成默认配置，然后使用 `menuconfig` 启用 `RUST` 和 `SAMPLES_RUST`，参数位置如下：
 
 
 ``` bash
@@ -180,7 +182,7 @@ Location:
   -> General setup
     -> Rust support (RUST [=y])
 
-config SAMPLES_RUST 
+config SAMPLES_RUST
 Location:
   -> Kernel hacking
     -> Sample kernel code (SAMPLES [=y])
@@ -204,19 +206,22 @@ make LLVM=1 -j$(nproc)
   RUSTC P rust/libmacros.so
 ```
 
-> **对于 Rust 是必须开启 `LLVM=1` 选项的，因此不能够省略，如果想要省略，可以在编译配置千使用如下命令**:
+> **对于 Rust 是必须开启 `LLVM=1` 选项的，因此不能够省略，如果想要省略，可以在编译配置前使用如下命令**:
 > ``` bash
 > export LLVM=1
 > ```
 
-编译完成后，读者可以在当前目录下查看到对应的生成镜像文件，我们所需要使用的则是 `vmlinux`。然后我们进入下一步，准备启动环境。
+编译完成后，可以在源码目录中看到生成的内核产物。其中：
+- `vmlinux` 是未压缩的 ELF 内核文件，包含完整符号信息，主要用于调试与分析；
+
+下文在 QEMU 启动场景中以 `vmlinux` 作为内核镜像进行说明。
 
 ### 运行 Rust for Linux 镜像
 
 之前提到，为了简化流程，我们会直接从网络上下载已有镜像进行运行，因此需要运行如下命令：
 
 ``` bash
-wget https://cdimage.debian.org/images/cloud/bookworm/20250316-2053/debian-12-nocloud-amd64-20250316-2053.qcow2 -o debian-12.qcow2
+wget https://cdimage.debian.org/images/cloud/bookworm/20250316-2053/debian-12-nocloud-amd64-20250316-2053.qcow2 -O debian-12.qcow2
 ```
 
 > 如果想要下载其他架构，请参考最下方的参考链接中的 Rust Exercises Ferrous System
@@ -227,7 +232,7 @@ wget https://cdimage.debian.org/images/cloud/bookworm/20250316-2053/debian-12-no
 (host-machine) qemu-img resize debian-12.qcow2 +32G
 ```
 
-至此，前期的准备工作均准备完毕，运行如下命令启动镜像：
+至此，前期的准备工作均准备完毕，运行以下命令启动虚拟机：
 
 ``` bash
 (host-machine) qemu-system-x86_64 -m 8G -M q35 -accel kvm -smp 8 \
@@ -322,11 +327,11 @@ Filesystem      Size  Used Avail Use% Mounted on
 
 至此，启动一个 Rust for Linux 编译的内核镜像就成功完成了。
 
-### TIPs：启用 rust anaylzer
+### Tips：启用 rust-analyzer
 
-Rust for Linux 为用户提供了 `make rust-analyzer` 的命令以启用 `rust-analyzer` 更为方便的编写和查看 rust 代码。
+Rust for Linux 提供了 `make rust-analyzer` 命令，便于启用 `rust-analyzer` 以更高效地编写和查看 Rust 代码。
 
-通常，我会使用如下步骤启用 `clangd` 和 `analyzer` 以支持内核 C 语言源码和 Rust 代码：
+通常我会按如下步骤启用 `clangd` 和 `rust-analyzer`，以同时支持内核 C 源码与 Rust 代码：
 
 ``` bash
 bear -- make LLVM=1 -j`nproc`
